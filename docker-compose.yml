@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  #mongoDB services
+  mongo_db:
+    container_name: db_container
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongodb:/data/db
+  # Node API services
+  api:
+    build: .
+    # This will only map one server to one port
+    # Create an error when scaling the servers
+    # ports:
+    #   - 4000:4000
+    environment:
+      PORT: 4000
+      SECRET_KEY: // JWT SECRET_KEY here
+      MONGO_URI: //Your Mongo Url Here
+    depends_on:
+      - mongo_db
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+    depends_on:
+      - api
+    ports:
+      - 4000:4000
+volumes:
+  mongodb:
